@@ -14,7 +14,9 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   async findAll(filters: UserFilters, page: number, limit: number): Promise<PaginatedResult<UserResult>> {
     const skip = (page - 1) * limit;
 
-    const where: Prisma.PedagogueWhereInput = {};
+    const where: Prisma.PedagogueWhereInput = {
+      removed: false,
+    };
 
     if (filters.name) {
       where.name = { contains: filters.name, mode: "insensitive" };
@@ -75,8 +77,8 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   }
 
   async findById(id: string): Promise<UserResult | null> {
-    const raw = await this.prisma.pedagogue.findUnique({
-      where: { externalId: id },
+    const raw = await this.prisma.pedagogue.findFirst({
+      where: { externalId: id, removed: false },
     });
 
     if (!raw) return null;
@@ -95,8 +97,8 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   }
 
   async findByIdWithPassword(id: string): Promise<UserAuthResult | null> {
-    const raw = await this.prisma.pedagogue.findUnique({
-      where: { externalId: id },
+    const raw = await this.prisma.pedagogue.findFirst({
+      where: { externalId: id, removed: false },
     });
 
     if (!raw) return null;
@@ -116,8 +118,8 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   }
 
   async findByEmail(email: string): Promise<UserResult | null> {
-    const raw = await this.prisma.pedagogue.findUnique({
-      where: { email },
+    const raw = await this.prisma.pedagogue.findFirst({
+      where: { email, removed: false },
     });
 
     if (!raw) return null;
@@ -167,6 +169,7 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
     const account = await this.prisma.pedagogue.findFirst({
       where: {
         email: email,
+        removed: false,
       },
     });
 
@@ -177,6 +180,7 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
     const account = await this.prisma.pedagogue.findFirst({
       where: {
         registration: registrationNumber,
+        removed: false,
       },
     });
 
@@ -184,8 +188,8 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   }
 
   async existsByUUID(externalId: string): Promise<boolean> {
-    const pedagogue = await this.prisma.pedagogue.findUnique({
-      where: { externalId },
+    const pedagogue = await this.prisma.pedagogue.findFirst({
+      where: { externalId, removed: false },
     });
 
     return !!pedagogue;
@@ -212,8 +216,8 @@ export class PrismaPedagogueRepository implements IPedagogueRepository {
   }
 
   async findByEmailWithPassword(email: string): Promise<UserAuthResult | null> {
-    const raw = await this.prisma.pedagogue.findUnique({
-      where: { email },
+    const raw = await this.prisma.pedagogue.findFirst({
+      where: { email, removed: false },
     });
 
     if (!raw) return null;

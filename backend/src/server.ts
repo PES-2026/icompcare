@@ -219,8 +219,6 @@ const diagnosesController = new DiagnosesController(
   new DiagnosisById(diagnosisRepository),
 );
 
-app.use(diagnosesRoutes(diagnosesController));
-
 const reportRepository = new PrismaReportRepository(prisma);
 const reportController = new ReportController(
   new GetReportInitialData(studentRepository),
@@ -230,7 +228,6 @@ const reportController = new ReportController(
   new ListReportsByStudent(reportRepository),
   new GetReportById(reportRepository),
 );
-app.use(reportRoutes(reportController, tokenService));
 
 const appointmentRepository = new PrismaAppointmentRepository(prisma);
 
@@ -354,27 +351,29 @@ app.use(
   }),
 );
 
-app.use(errorHandler);
+app.use(attendanceTypeRoutes(attendanceTypeController, tokenService));
 
-app.use(attendanceTypeRoutes(attendanceTypeController));
+app.use(accountRequestRoutes(accountRequestController, tokenService));
 
-app.use(accountRequestRoutes(accountRequestController));
-
-app.use(userRoutes(userController));
+app.use(userRoutes(userController, tokenService));
 
 app.use(authRoutes(authController, tokenService));
 
-app.use(attendanceRoutes(attendanceController));
+app.use(attendanceRoutes(attendanceController, tokenService));
 
-app.use(diagnosesRoutes(diagnosesController));
+app.use(diagnosesRoutes(diagnosesController, tokenService));
+
+app.use(reportRoutes(reportController, tokenService));
 
 app.use(appointmentRoutes(appointmentController, tokenService));
 
-app.use(studentRoutes(studentController));
+app.use(studentRoutes(studentController, tokenService));
 
-app.use(courseRoutes(courseController));
+app.use(courseRoutes(courseController, tokenService));
 
 app.use(availabilityRoutes(availabililtyController, tokenService));
+
+app.use(errorHandler);
 
 const PORT = env.BACKEND_PORT;
 

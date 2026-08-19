@@ -1,5 +1,6 @@
 import { ApplicationError } from "@application/errors/applicationError";
 import { InvalidCredentialsError } from "@application/errors/user/invalidCredentialsError";
+import { UserStatusEnum } from "@domain/enum/userStatus";
 import { AuthResult } from "@domain/repositories/results/authResult";
 import { IHashService } from "@domain/services/hashService";
 import { ITokenService } from "@domain/services/tokenService";
@@ -24,6 +25,10 @@ export class AuthenticateUser {
     }
 
     const { userData, role } = resolvedData.getValue();
+
+    if (userData.userStatus !== UserStatusEnum.APPROVED && userData.userStatus !== UserStatusEnum.ENABLED) {
+      return Result.fail<AuthResult>(new InvalidCredentialsError());
+    }
 
     const isPasswordValid = await this.hashService.compare(input.password, userData.password);
 
