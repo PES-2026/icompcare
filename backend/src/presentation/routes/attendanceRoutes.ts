@@ -10,6 +10,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { AttendanceController } from "@presentation/controllers/attendanceController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -23,6 +24,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
 
   router.post(
     "/attendances",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(CreateAttendanceDTO),
@@ -30,6 +32,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
   );
   router.get(
     "/attendances",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateQuery(ListAttendanceDTO),
@@ -37,6 +40,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
   );
   router.put(
     "/attendances/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateAttendanceDTO),
@@ -44,6 +48,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
   );
   router.get(
     "/attendances/student/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParamsAndQuery(AttendancesByStudentDTO),
@@ -51,6 +56,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
   );
   router.post(
     "/attendances/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveAttendanceDTO),
@@ -58,6 +64,7 @@ export function attendanceRoutes(controller: AttendanceController, tokenService:
   );
   router.get(
     "/attendances/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(AttendanceByIdDTO),

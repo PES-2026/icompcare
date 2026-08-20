@@ -9,6 +9,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { StudentController } from "@presentation/controllers/studentController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -19,9 +20,17 @@ export function studentRoutes(controller: StudentController, tokenService: IToke
   const router = Router();
   const auth = (req: Request, res: Response, next: NextFunction) => authMiddleware(tokenService, req, res, next);
 
-  router.post("/students", auth, requireRole([RoleEnum.PEDAGOGUE]), validateBody(CreateStudentDTO), controller.create);
+  router.post(
+    "/students",
+    apiRateLimiter,
+    auth,
+    requireRole([RoleEnum.PEDAGOGUE]),
+    validateBody(CreateStudentDTO),
+    controller.create,
+  );
   router.get(
     "/students",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateQuery(ListStudentDTO),
@@ -29,6 +38,7 @@ export function studentRoutes(controller: StudentController, tokenService: IToke
   );
   router.get(
     "/students/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(StudentByIdDTO),
@@ -36,6 +46,7 @@ export function studentRoutes(controller: StudentController, tokenService: IToke
   );
   router.put(
     "/students/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateStudentDTO),
@@ -43,6 +54,7 @@ export function studentRoutes(controller: StudentController, tokenService: IToke
   );
   router.post(
     "/students/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveStudentDTO),

@@ -6,7 +6,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { AccountRequestController } from "@presentation/controllers/accountRequestController";
 import { authMiddleware } from "@presentation/middlewares/auth";
-import { createAccountRateLimiter } from "@presentation/middlewares/rateLimiter";
+import { apiRateLimiter, createAccountRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 
@@ -15,9 +15,10 @@ export function accountRequestRoutes(controller: AccountRequestController, token
   const auth = (req: Request, res: Response, next: NextFunction) => authMiddleware(tokenService, req, res, next);
 
   router.post("/account-requests", createAccountRateLimiter, validateBody(CreateProfessorDTO), controller.create);
-  router.get("/account-requests/pending", auth, requireRole([RoleEnum.PEDAGOGUE]), controller.listPending);
+  router.get("/account-requests/pending", apiRateLimiter, auth, requireRole([RoleEnum.PEDAGOGUE]), controller.listPending);
   router.post(
     "/account-requests/approve-users",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(ApproveUserDTO),

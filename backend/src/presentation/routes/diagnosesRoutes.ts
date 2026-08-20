@@ -9,6 +9,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { DiagnosesController } from "@presentation/controllers/diagnosesController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -21,6 +22,7 @@ export function diagnosesRoutes(controller: DiagnosesController, tokenService: I
 
   router.post(
     "/diagnoses",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(CreateDiagnosisDTO),
@@ -28,6 +30,7 @@ export function diagnosesRoutes(controller: DiagnosesController, tokenService: I
   );
   router.put(
     "/diagnoses/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateDiagnosisDTO),
@@ -35,6 +38,7 @@ export function diagnosesRoutes(controller: DiagnosesController, tokenService: I
   );
   router.get(
     "/diagnoses",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateQuery(ListDiagnosisDTO),
@@ -42,6 +46,7 @@ export function diagnosesRoutes(controller: DiagnosesController, tokenService: I
   );
   router.post(
     "/diagnoses/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveDiagnosisDTO),
@@ -49,6 +54,7 @@ export function diagnosesRoutes(controller: DiagnosesController, tokenService: I
   );
   router.get(
     "/diagnoses/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(DiagnosisByIdDTO),
