@@ -59,9 +59,7 @@ export const useSchedulingPreview = () => {
 
   const convertTimeToDate = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
-    const date = new Date();
-    date.setUTCHours(hours, minutes, 0, 0);
-    return date;
+    return new Date(Date.UTC(1970, 0, 1, hours, minutes, 0, 0));
   };
 
   const generatePreview = async (data: SchedulingFormData) => {

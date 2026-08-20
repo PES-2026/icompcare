@@ -13,6 +13,6 @@ export class GetWeekdayFromDate {
       6: DaysOfWeekEnum.SATURDAY,
     };
 
-    return weekdayMap[parsedDate.getDay()]!;
+    return weekdayMap[parsedDate.getUTCDay()]!;
   }
 }

@@ -1,12 +1,22 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ClipboardClock } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarDays,
+  CalendarPlus,
+  ClipboardClock,
+} from "lucide-react";
 import { useState } from "react";
 import SchedulingTable from "./list/SchedulingTable";
 import PendingSchedulingTable from "./pending/PendingSchedulingTable";
+import MyAvailabilityView from "./settings/MyAvailabilityView";
 import SchedulingForm from "./settings/SchedulingForm";
 
-type SchedulingTab = "pending" | "schedulings" | "availability";
+type SchedulingTab =
+  | "schedulings"
+  | "pending"
+  | "my-availability"
+  | "availability";
 
 export default function SchedulingTabs() {
   const [activeTab, setActiveTab] = useState<SchedulingTab>("schedulings");
@@ -47,6 +57,15 @@ export default function SchedulingTabs() {
 
           <button
             type="button"
+            onClick={() => setActiveTab("my-availability")}
+            className={tabClass("my-availability")}
+          >
+            <CalendarCheck className="h-4.5 w-4.5" />
+            Minha agenda
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("availability")}
             className={tabClass("availability")}
           >
@@ -61,6 +80,8 @@ export default function SchedulingTabs() {
           <PendingSchedulingTable />
         ) : activeTab === "schedulings" ? (
           <SchedulingTable />
+        ) : activeTab === "my-availability" ? (
+          <MyAvailabilityView onGoToCreate={() => setActiveTab("availability")} />
         ) : (
           <SchedulingForm />
         )}

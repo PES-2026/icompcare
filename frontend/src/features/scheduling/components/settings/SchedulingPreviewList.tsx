@@ -18,7 +18,6 @@ const formatDateLabel = (date: Date | string) => {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "UTC",
   }).format(d);
 };
 
@@ -26,7 +25,6 @@ const formatWeekday = (date: Date | string) => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("pt-BR", {
     weekday: "short",
-    timeZone: "UTC",
   })
     .format(d)
     .replace(".", "");
@@ -79,7 +77,10 @@ export default function SchedulingPreviewList({
 
     const date = typeof timeVal === "string" ? new Date(timeVal) : timeVal;
     if (date instanceof Date && !isNaN(date.getTime())) {
-      return `${padTime(date.getUTCHours())}:${padTime(date.getUTCMinutes())}`;
+      return new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
     }
 
     return "";

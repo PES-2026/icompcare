@@ -28,18 +28,15 @@ export class PreviewAvailability {
       return Result.fail(new AttendanceTimeGreatherThanZeroError());
     }
 
-    const startHourMinutes = dto.startHour.getHours() * 60 + dto.startHour.getMinutes();
-    const endHourMinutes = dto.endHour.getHours() * 60 + dto.endHour.getMinutes();
+    const startHourMinutes = dto.startHour.getUTCHours() * 60 + dto.startHour.getUTCMinutes();
+    const endHourMinutes = dto.endHour.getUTCHours() * 60 + dto.endHour.getUTCMinutes();
 
     if (endHourMinutes < startHourMinutes) {
-      return Result.fail(new EndHourLowerThanStartHourError(dto.startHour.getHours(), dto.endHour.getHours()));
+      return Result.fail(new EndHourLowerThanStartHourError(dto.startHour.getUTCHours(), dto.endHour.getUTCHours()));
     }
 
-    const startRange = new Date(dto.startDate);
-    startRange.setHours(0, 0, 0, 0);
-
-    const endRange = new Date(dto.endDate);
-    endRange.setHours(23, 59, 59, 999);
+    const startRange = new Date(Date.UTC(dto.startDate.getUTCFullYear(), dto.startDate.getUTCMonth(), dto.startDate.getUTCDate(), 0, 0, 0, 0));
+    const endRange = new Date(Date.UTC(dto.endDate.getUTCFullYear(), dto.endDate.getUTCMonth(), dto.endDate.getUTCDate(), 23, 59, 59, 999));
 
     const existingSlots = await this.availabilityRepository.findAllAvailabilitiesByRange(
       dto.pedagogueId,
@@ -77,12 +74,10 @@ export class PreviewAvailability {
   ): Result<Array<PreviewAvailabilityItemResponse>> {
     const previewItems: Array<PreviewAvailabilityItemResponse> = [];
 
-    const tempStartDate = new Date(startDate);
-    const tempEndDate = new Date(endDate);
-    tempStartDate.setHours(0, 0, 0, 0);
-    tempEndDate.setHours(0, 0, 0, 0);
-    const startHourMinutes = startHour.getHours() * 60 + startHour.getMinutes();
-    const endHourMinutes = endHour.getHours() * 60 + endHour.getMinutes();
+    const tempStartDate = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate(), 0, 0, 0, 0));
+    const tempEndDate = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), 0, 0, 0, 0));
+    const startHourMinutes = startHour.getUTCHours() * 60 + startHour.getUTCMinutes();
+    const endHourMinutes = endHour.getUTCHours() * 60 + endHour.getUTCMinutes();
 
     const currentDate = new Date(tempStartDate);
 
@@ -92,10 +87,10 @@ export class PreviewAvailability {
 
       while (currentStartMinutes + attendanceTime <= endHourMinutes) {
         const startDateTime = new Date(currentDate);
-        startDateTime.setMinutes(startDateTime.getMinutes() + currentStartMinutes);
+        startDateTime.setUTCMinutes(startDateTime.getUTCMinutes() + currentStartMinutes);
 
         const endDateTime = new Date(currentDate);
-        endDateTime.setMinutes(endDateTime.getMinutes() + currentStartMinutes + attendanceTime);
+        endDateTime.setUTCMinutes(endDateTime.getUTCMinutes() + currentStartMinutes + attendanceTime);
 
         const existingSlot = existingSlots.find((s) => {
           const sStart = s.startDateTime.getTime();
@@ -149,7 +144,7 @@ export class PreviewAvailability {
         slots,
       });
 
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
 
     return Result.ok(previewItems);

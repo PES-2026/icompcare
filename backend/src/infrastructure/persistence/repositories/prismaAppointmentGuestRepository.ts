@@ -21,7 +21,7 @@ export class PrismaAppointmentGuestRepository implements IAppointmentGuestReposi
       studentName: data.studentName,
       studentEmail: data.studentEmail,
       studentEnrollment: data.studentEnrollment,
-      studentCourse: data.course.externalId,
+      studentCourse: data.course.name,
       availabilityId: data.availability.externalId,
       startDate: data.availability.startDateTime,
       endDate: data.availability.endDateTime,

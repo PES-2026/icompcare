@@ -83,6 +83,33 @@ export const scheduleService = {
     return response.data;
   },
 
+  async getAllAvailabilities(
+    pedagogueId: string,
+    params?: {
+      startDate?: string;
+      endDate?: string;
+      status?: string;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<TimeSlotResponse> {
+    const response = await api.get<TimeSlotResponse>(
+      `/availabilities/pedagogue/${pedagogueId}`,
+      {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 100,
+          ...(params?.startDate && { startDate: params.startDate }),
+          ...(params?.endDate && { endDate: params.endDate }),
+          ...(params?.status && { status: params.status }),
+        },
+        fallbackMsg: "Não foi possível carregar os horários da agenda.",
+      },
+    );
+
+    return response.data;
+  },
+
   async getAppointmentByToken(token: string): Promise<any> {
     const response = await api.get<any>(`/appointments/student/${token}`, {
       fallbackMsg: "Não foi possível carregar os detalhes do agendamento.",

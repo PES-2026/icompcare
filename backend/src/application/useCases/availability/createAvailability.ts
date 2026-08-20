@@ -42,16 +42,13 @@ export class CreateAvailability {
         return Result.fail(weekDayValidation.error!);
       }
 
-      const startHour = item.start.getHours();
-      const startMinute = item.start.getMinutes();
-      const endHour = item.end.getHours();
-      const endMinute = item.end.getMinutes();
+      const startHour = item.start.getUTCHours();
+      const startMinute = item.start.getUTCMinutes();
+      const endHour = item.end.getUTCHours();
+      const endMinute = item.end.getUTCMinutes();
 
-      const startDateTime = new Date(item.date);
-      startDateTime.setHours(startHour, startMinute, 0, 0);
-
-      const endDateTime = new Date(item.date);
-      endDateTime.setHours(endHour, endMinute, 0, 0);
+      const startDateTime = new Date(Date.UTC(item.date.getUTCFullYear(), item.date.getUTCMonth(), item.date.getUTCDate(), startHour, startMinute, 0, 0));
+      const endDateTime = new Date(Date.UTC(item.date.getUTCFullYear(), item.date.getUTCMonth(), item.date.getUTCDate(), endHour, endMinute, 0, 0));
 
       const overlapValidation = await this.validateSlotOverlap(item, startDateTime, endDateTime);
 
@@ -115,10 +112,8 @@ export class CreateAvailability {
   }
 
   private async validateSlotOverlap(item: CreateAvailabilityItemDTO, startDateTime: Date, endDateTime: Date) {
-    const startOfDay = new Date(startDateTime);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(startDateTime);
-    endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = new Date(Date.UTC(startDateTime.getUTCFullYear(), startDateTime.getUTCMonth(), startDateTime.getUTCDate(), 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(startDateTime.getUTCFullYear(), startDateTime.getUTCMonth(), startDateTime.getUTCDate(), 23, 59, 59, 999));
 
     const existingSlots = await this.availabilityRepository.findAllAvailabilitiesByRange(
       item.pedagogueId,
