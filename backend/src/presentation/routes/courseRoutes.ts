@@ -9,6 +9,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { CourseController } from "@presentation/controllers/courseController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -19,17 +20,26 @@ export function courseRoutes(controller: CourseController, tokenService: ITokenS
   const router = Router();
   const auth = (req: Request, res: Response, next: NextFunction) => authMiddleware(tokenService, req, res, next);
 
-  router.post("/courses", auth, requireRole([RoleEnum.PEDAGOGUE]), validateBody(CreateCourseDTO), controller.create);
+  router.post(
+    "/courses",
+    apiRateLimiter,
+    auth,
+    requireRole([RoleEnum.PEDAGOGUE]),
+    validateBody(CreateCourseDTO),
+    controller.create,
+  );
   router.put(
     "/courses/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateCourseDTO),
     controller.update,
   );
-  router.get("/courses", validateQuery(ListCourseDTO), controller.list);
+  router.get("/courses", apiRateLimiter, validateQuery(ListCourseDTO), controller.list);
   router.get(
     "/courses/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(CourseByIdDTO),
@@ -37,6 +47,7 @@ export function courseRoutes(controller: CourseController, tokenService: ITokenS
   );
   router.post(
     "/courses/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveCourseDTO),

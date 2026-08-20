@@ -9,6 +9,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { AttendanceTypeController } from "@presentation/controllers/attendanceTypeController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -21,6 +22,7 @@ export function attendanceTypeRoutes(controller: AttendanceTypeController, token
 
   router.post(
     "/attendance-types",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(CreateAttendanceTypeDTO),
@@ -28,6 +30,7 @@ export function attendanceTypeRoutes(controller: AttendanceTypeController, token
   );
   router.put(
     "/attendance-types/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateAttendanceTypeDTO),
@@ -35,6 +38,7 @@ export function attendanceTypeRoutes(controller: AttendanceTypeController, token
   );
   router.get(
     "/attendance-types",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateQuery(ListAttendanceTypeDTO),
@@ -42,6 +46,7 @@ export function attendanceTypeRoutes(controller: AttendanceTypeController, token
   );
   router.post(
     "/attendance-types/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveAttendanceTypeDTO),
@@ -49,6 +54,7 @@ export function attendanceTypeRoutes(controller: AttendanceTypeController, token
   );
   router.get(
     "/attendance-types/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(AttendanceTypeByIdDTO),

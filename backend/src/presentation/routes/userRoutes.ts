@@ -10,7 +10,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { UserController } from "@presentation/controllers/userController";
 import { authMiddleware } from "@presentation/middlewares/auth";
-import { authRateLimiter } from "@presentation/middlewares/rateLimiter";
+import { apiRateLimiter, authRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateParams } from "@presentation/middlewares/validateParams";
 import { validateParamsAndBody } from "@presentation/middlewares/validateParamsAndBody";
@@ -20,9 +20,10 @@ export function userRoutes(controller: UserController, tokenService: ITokenServi
   const router = Router();
   const auth = (req: Request, res: Response, next: NextFunction) => authMiddleware(tokenService, req, res, next);
 
-  router.get("/users", validateQuery(ListUsersDTO), controller.list);
+  router.get("/users", apiRateLimiter, validateQuery(ListUsersDTO), controller.list);
   router.put(
     "/users/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParamsAndBody(UpdateUserDTO),
@@ -38,6 +39,7 @@ export function userRoutes(controller: UserController, tokenService: ITokenServi
   );
   router.get(
     "/users/:id",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE, RoleEnum.PROFESSOR]),
     validateParams(UserByIdDTO),
@@ -45,6 +47,7 @@ export function userRoutes(controller: UserController, tokenService: ITokenServi
   );
   router.post(
     "/users/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveUserDTO),
@@ -52,6 +55,7 @@ export function userRoutes(controller: UserController, tokenService: ITokenServi
   );
   router.post(
     "/users/:id/activate",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(ActivateUserDTO),

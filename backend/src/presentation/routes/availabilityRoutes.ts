@@ -9,6 +9,7 @@ import { RoleEnum } from "@domain/enum/role";
 import { ITokenService } from "@domain/services/tokenService";
 import { AvailabilityController } from "@presentation/controllers/availabilityController";
 import { authMiddleware } from "@presentation/middlewares/auth";
+import { apiRateLimiter } from "@presentation/middlewares/rateLimiter";
 import { requireRole } from "@presentation/middlewares/role";
 import { validateBody } from "@presentation/middlewares/validateBody";
 import { validateParams } from "@presentation/middlewares/validateParams";
@@ -20,6 +21,7 @@ export const availabilityRoutes = (controller: AvailabilityController, tokenServ
 
   routes.post(
     "/availabilities/preview",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(PreviewAvailabilityDTO),
@@ -27,6 +29,7 @@ export const availabilityRoutes = (controller: AvailabilityController, tokenServ
   );
   routes.post(
     "/availabilities",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(CreateAvailabilityDTO),
@@ -34,11 +37,13 @@ export const availabilityRoutes = (controller: AvailabilityController, tokenServ
   );
   routes.get(
     "/availabilities/pedagogue/:id",
+    apiRateLimiter,
     validateParamsAndQuery(ListAvailabilitiesByPedagogueDTO),
     controller.list,
   );
   routes.put(
     "/availabilities/:id/remove",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateParams(RemoveAvailabilityDTO),
@@ -46,6 +51,7 @@ export const availabilityRoutes = (controller: AvailabilityController, tokenServ
   );
   routes.put(
     "/availabilities/remove-many",
+    apiRateLimiter,
     auth,
     requireRole([RoleEnum.PEDAGOGUE]),
     validateBody(RemoveManyAvailabilitiesDTO),
