@@ -119,15 +119,25 @@ export class PrismaAvailabilityRepository implements IAvailabilityRepository {
     const { page, limit, filters } = params;
     const offset = (page - 1) * limit;
 
-    const pedagogue = filters.pedagogueId
-      ? await this.prisma.pedagogue.findUnique({
-          where: { externalId: filters.pedagogueId },
-          select: { internalId: true },
-        })
-      : null;
+    let pedagogueInternalId: number | undefined;
+    if (filters.pedagogueId) {
+      const pedagogue = await this.prisma.pedagogue.findFirst({
+        where: { externalId: filters.pedagogueId, removed: false },
+        select: { internalId: true },
+      });
+      if (!pedagogue) {
+        return {
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: page,
+          items: [],
+        };
+      }
+      pedagogueInternalId = pedagogue.internalId;
+    }
 
     const where: Prisma.AvailabilityWhereInput = {
-      ...(pedagogue && { pedagogueId: pedagogue.internalId }),
+      ...(pedagogueInternalId !== undefined && { pedagogueId: pedagogueInternalId }),
       ...(filters.status && { status: filters.status }),
       ...(filters.attendanceTime && { attendanceTime: filters.attendanceTime }),
       ...(filters.startDate && { startDateTime: { gte: filters.startDate } }),
