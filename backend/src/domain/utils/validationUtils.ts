@@ -25,8 +25,6 @@ export function validateDateField(value: unknown, fieldName: string): Date {
 
   if (typeof value === "string") {
     parsedDate = new Date(value);
-    const userTimezoneOffset = parsedDate.getTimezoneOffset() * 60000;
-    parsedDate = new Date(parsedDate.getTime() + userTimezoneOffset);
   } else if (value instanceof Date) {
     parsedDate = new Date(value);
   } else {
