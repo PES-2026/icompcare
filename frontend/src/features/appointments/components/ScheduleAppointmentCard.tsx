@@ -18,6 +18,7 @@ export default function ScheduleAppointmentCard() {
   const {
     register,
     control,
+    trigger,
     handleSubmit,
     reset,
     errors,
@@ -32,6 +33,18 @@ export default function ScheduleAppointmentCard() {
   const { pedagogueOptions } = usePedagogueOptions();
 
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+
+  const handleOpenConfirm = async () => {
+    const isValid = await trigger();
+    if (isValid) {
+      setShowConfirmSubmit(true);
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    setShowConfirmSubmit(false);
+    await handleSubmit();
+  };
 
   const baseInputClass =
     "w-full px-3.5 py-2.5 border-[1.5px] rounded-md text-sm outline-none transition-colors font-sans text-stone-800";
@@ -247,7 +260,7 @@ export default function ScheduleAppointmentCard() {
           />
           <CommonButton
             label={isSubmitting ? "Enviando..." : "Confirmar Solicitação"}
-            onClick={() => setShowConfirmSubmit(true)}
+            onClick={handleOpenConfirm}
             disabled={isSubmitting}
             className="w-full sm:w-auto justify-center"
           />
@@ -257,10 +270,10 @@ export default function ScheduleAppointmentCard() {
       <ConfirmModal
         open={showConfirmSubmit}
         title="Solicitar Agendamento"
-        message={`Tem certeza que deseja solicitar o agendamento no horário selecionado?`}
+        message="Tem certeza que deseja solicitar o agendamento no horário selecionado?"
         confirmLabel="Solicitar"
         confirmColor="primary"
-        onConfirm={handleSubmit}
+        onConfirm={handleConfirmSubmit}
         onCancel={() => setShowConfirmSubmit(false)}
       />
     </div>

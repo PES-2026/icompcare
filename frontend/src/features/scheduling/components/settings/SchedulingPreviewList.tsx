@@ -12,6 +12,14 @@ interface SchedulingPreviewListProps {
   onToggleAllDaySlots: (daySlots: string[], isEnablingAll: boolean) => void;
 }
 
+const getDayDate = (day: SchedulingDayPreview): Date => {
+  if (day.slots && day.slots.length > 0 && day.slots[0].start) {
+    const s = day.slots[0].start;
+    return typeof s === "string" ? new Date(s) : s;
+  }
+  return typeof day.date === "string" ? new Date(day.date) : day.date;
+};
+
 const formatDateLabel = (date: Date | string) => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("pt-BR", {
@@ -41,6 +49,9 @@ const formatTimeFromMinutes = (totalMinutes: number) => {
 const getSlotId = (slot: SchedulingSlot, dayDate: Date | string) => {
   if (slot.startDateTime && slot.endDateTime) {
     return `${slot.startDateTime}|${slot.endDateTime}`;
+  }
+  if (slot.start && slot.end) {
+    return `${slot.start}|${slot.end}`;
   }
   const dateStr = typeof dayDate === "string" ? dayDate : dayDate.toISOString();
   return `${dateStr}|${slot.start}|${slot.end}`;
@@ -107,23 +118,15 @@ export default function SchedulingPreviewList({
 
   return (
     <div className="w-full">
-      <div className="flex flex-nowrap md:flex-wrap gap-4 overflow-x-auto md:overflow-visible pb-4 custom-scroll snap-x snap-mandatory">
+      <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 custom-scroll snap-x snap-mandatory">
         {days.map((day) => {
-          const daySlotIds = day.slots.map((slot) => getSlotId(slot, day.date));
+          const dayDate = getDayDate(day);
+          const daySlotIds = day.slots.map((slot) => getSlotId(slot, dayDate));
 
-          // A slot is "selected/enabled" if:
-          // 1. It is AVAILABLE and in disabledSlotIds (means we actively selected it to be created)
-          // 2. It is CREATED and NOT in disabledSlotIds (means it exists and we haven't actively removed it)
           const enabledSlotsCount = day.slots.reduce((acc, slot) => {
-            const slotId = getSlotId(slot, day.date);
-            const isToggled = disabledSlotIds.has(slotId);
-            const isAvailable = slot.status === "AVAILABLE";
-            const isCreated = slot.status === "CREATED";
-
-            if ((isAvailable && isToggled) || (isCreated && !isToggled)) {
-              return acc + 1;
-            }
-            return acc;
+            const slotId = getSlotId(slot, dayDate);
+            const isEnabled = !disabledSlotIds.has(slotId);
+            return isEnabled ? acc + 1 : acc;
           }, 0);
 
           const totalSlots = day.slots.length;
@@ -132,15 +135,15 @@ export default function SchedulingPreviewList({
 
           return (
             <article
-              key={day.date instanceof Date ? day.date.toISOString() : day.date}
-              className="shrink-0 w-[85vw] sm:w-64 md:w-auto md:flex-1 md:min-w-60 snap-center overflow-hidden rounded-2xl border border-stone-200 bg-white"
+              key={dayDate instanceof Date ? dayDate.toISOString() : String(dayDate)}
+              className="shrink-0 w-[85vw] sm:w-72 md:w-64 snap-start overflow-hidden rounded-2xl border border-stone-200 bg-white"
             >
               <header className="flex flex-col items-center justify-center border-b border-stone-100 bg-stone-50 px-4 py-3">
                 <span className="text-xs font-medium uppercase tracking-wider text-stone-400">
-                  {formatWeekday(day.date)}
+                  {formatWeekday(dayDate)}
                 </span>
                 <h3 className="text-base font-semibold text-stone-700">
-                  {formatDateLabel(day.date)}
+                  {formatDateLabel(dayDate)}
                 </h3>
 
                 <div className="mt-3 w-full border-t border-stone-200/60 pt-3">
@@ -178,9 +181,8 @@ export default function SchedulingPreviewList({
 
               <div className="flex flex-col p-2 gap-1.5 max-h-75 md:max-h-none overflow-y-auto custom-scroll">
                 {day.slots.map((slot) => {
-                  const slotId = getSlotId(slot, day.date);
-                  const isToggled = disabledSlotIds.has(slotId);
-                  const isAvailable = slot.status === "AVAILABLE";
+                  const slotId = getSlotId(slot, dayDate);
+                  const isEnabled = !disabledSlotIds.has(slotId);
                   const isCreated = slot.status === "CREATED";
 
                   let buttonClass = "";
@@ -190,62 +192,41 @@ export default function SchedulingPreviewList({
                   let toggleDotClass = "";
                   let icon = null;
 
-                  if (isAvailable) {
-                    if (isToggled) {
-                      buttonClass =
-                        "border-teal-100 bg-teal-50 hover:border-teal-200 hover:bg-teal-100/70";
-                      timeClass = "text-teal-800";
-                      subTimeClass = "text-teal-600";
-                      toggleBgClass = "bg-teal-500";
-                      toggleDotClass = "translate-x-5";
-                      icon = (
-                        <Check
-                          size={12}
-                          className="text-teal-500"
-                          strokeWidth={3}
-                        />
-                      );
-                    } else {
-                      buttonClass =
-                        "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50";
-                      timeClass = "text-stone-600";
-                      subTimeClass = "text-stone-400";
-                      toggleBgClass = "bg-stone-200";
-                      toggleDotClass = "translate-x-0";
-                      icon = (
-                        <Clock3
-                          size={12}
-                          className="text-stone-400"
-                          strokeWidth={3}
-                        />
-                      );
-                    }
-                  } else if (isCreated) {
-                    if (isToggled) {
-                      buttonClass =
-                        "border-red-100 bg-red-50 hover:border-red-200 hover:bg-red-100/70";
-                      timeClass = "text-red-700 line-through opacity-70";
-                      subTimeClass = "text-red-500 opacity-70";
-                      toggleBgClass = "bg-red-300";
-                      toggleDotClass = "translate-x-0";
-                      icon = (
-                        <X size={12} className="text-red-500" strokeWidth={3} />
-                      );
-                    } else {
-                      buttonClass =
-                        "border-teal-100 bg-teal-50 hover:border-teal-200 hover:bg-teal-100/70";
-                      timeClass = "text-teal-800";
-                      subTimeClass = "text-teal-600";
-                      toggleBgClass = "bg-teal-500";
-                      toggleDotClass = "translate-x-5";
-                      icon = (
-                        <Check
-                          size={12}
-                          className="text-teal-500"
-                          strokeWidth={3}
-                        />
-                      );
-                    }
+                  if (isEnabled) {
+                    buttonClass =
+                      "border-teal-100 bg-teal-50 hover:border-teal-200 hover:bg-teal-100/70";
+                    timeClass = "text-teal-800";
+                    subTimeClass = "text-teal-600";
+                    toggleBgClass = "bg-teal-500";
+                    toggleDotClass = "translate-x-5";
+                    icon = (
+                      <Check
+                        size={12}
+                        className="text-teal-500"
+                        strokeWidth={3}
+                      />
+                    );
+                  } else {
+                    buttonClass = isCreated
+                      ? "border-red-100 bg-red-50 hover:border-red-200 hover:bg-red-100/70"
+                      : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50";
+                    timeClass = isCreated
+                      ? "text-red-700 line-through opacity-70"
+                      : "text-stone-600";
+                    subTimeClass = isCreated
+                      ? "text-red-500 opacity-70"
+                      : "text-stone-400";
+                    toggleBgClass = isCreated ? "bg-red-300" : "bg-stone-200";
+                    toggleDotClass = "translate-x-0";
+                    icon = isCreated ? (
+                      <X size={12} className="text-red-500" strokeWidth={3} />
+                    ) : (
+                      <Clock3
+                        size={12}
+                        className="text-stone-400"
+                        strokeWidth={3}
+                      />
+                    );
                   }
 
                   return (
@@ -253,9 +234,7 @@ export default function SchedulingPreviewList({
                       key={slotId}
                       type="button"
                       onClick={() => onToggleSlot(slotId)}
-                      aria-pressed={
-                        (isAvailable && isToggled) || (isCreated && !isToggled)
-                      }
+                      aria-pressed={isEnabled}
                       aria-label={`Horário de ${formatSlotTime(slot.start)} às ${formatSlotTime(slot.end)}`}
                       className={`group relative flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-all active:scale-[0.98] ${buttonClass}`}
                     >

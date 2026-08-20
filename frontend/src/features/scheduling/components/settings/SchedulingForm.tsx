@@ -218,9 +218,11 @@ export default function SchedulingForm() {
                     <span className="rounded-full bg-[#dff3ec] px-3 py-1.5 text-[#397b65]">
                       {activeSlotsCount} ativos
                     </span>
-                    <span className="rounded-full bg-[#ffe0d8] px-3 py-1.5 text-[#b95f4c]">
-                      {disabledSlotIds.size} removidos
-                    </span>
+                    {disabledSlotIds.size > 0 && (
+                      <span className="rounded-full bg-[#ffe0d8] px-3 py-1.5 text-[#b95f4c]">
+                        {disabledSlotIds.size} desmarcados
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

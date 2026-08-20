@@ -127,9 +127,11 @@ export class PreviewAvailability {
         currentStartMinutes += attendanceTime + breakTime;
       }
 
+      const firstSlot = slots[0];
+      const dayDate = firstSlot && firstSlot.start ? new Date(firstSlot.start) : new Date(currentDate);
       previewItems.push({
-        date: new Date(currentDate),
-        weekday: this.getWeekdayFromDate.execute(currentDate),
+        date: dayDate,
+        weekday: this.getWeekdayFromDate.execute(dayDate),
         slots,
       });
 

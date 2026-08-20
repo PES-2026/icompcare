@@ -110,7 +110,7 @@ export default function MyAvailabilityView({
     (s) => s.status === "CREATED" && !s.appointmentId,
   ).length;
   const bookedCount = slots.filter(
-    (s) => s.status === "CONFIRMED" || s.appointmentId,
+    (s) => s.status === "BOOKED" || s.appointmentId,
   ).length;
   const pendingCount = slots.filter((s) => s.status === "PENDING").length;
 
@@ -265,9 +265,20 @@ export default function MyAvailabilityView({
               </button>
               <button
                 type="button"
-                onClick={() => setFilterStatus("CONFIRMED")}
+                onClick={() => setFilterStatus("PENDING")}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  filterStatus === "CONFIRMED"
+                  filterStatus === "PENDING"
+                    ? "bg-white text-amber-700 shadow-sm"
+                    : "text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                Pendentes
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterStatus("BOOKED")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  filterStatus === "BOOKED"
                     ? "bg-white text-blue-700 shadow-sm"
                     : "text-stone-500 hover:text-stone-800"
                 }`}

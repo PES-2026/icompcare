@@ -16,16 +16,18 @@ import {
 } from "../types/scheduling";
 import {
   generateSchedulingPreview,
-  minutesToTime,
 } from "../utils/schedulingPreview";
 import { scheduleSchema } from "../utils/validations";
 
 export const SCHEDULING_PREVIEW_MOCK_ENABLED =
   process.env.NEXT_PUBLIC_SCHEDULING_PREVIEW_MOCK === "true";
 
-const getSlotId = (slot: SchedulingSlot & { dayDate?: Date }) => {
+const getSlotId = (slot: SchedulingSlot & { dayDate?: Date | string }) => {
   if (slot.startDateTime && slot.endDateTime) {
     return `${slot.startDateTime}|${slot.endDateTime}`;
+  }
+  if (slot.start && slot.end) {
+    return `${slot.start}|${slot.end}`;
   }
   return `${slot.dayDate}|${slot.start}|${slot.end}`;
 };
@@ -62,12 +64,9 @@ export const useSchedulingPreview = () => {
     return new Date(1970, 0, 1, hours, minutes, 0, 0);
   };
 
-  const parseLocalDate = (dateStr: string, isEnd = false) => {
+  const parseLocalDate = (dateStr: string) => {
     const [year, month, day] = dateStr.split("-").map(Number);
-    if (isEnd) {
-      return new Date(year, month - 1, day, 23, 59, 59, 999);
-    }
-    return new Date(year, month - 1, day, 0, 0, 0, 0);
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
   };
 
   const generatePreview = async (data: SchedulingFormData) => {
@@ -79,7 +78,7 @@ export const useSchedulingPreview = () => {
     const payload: SchedulingPreviewPayload = {
       pedagogueId,
       startDate: parseLocalDate(data.startDate),
-      endDate: parseLocalDate(data.endDate, true),
+      endDate: parseLocalDate(data.endDate),
       startHour: parseLocalTimeToDate(data.startTime),
       endHour: parseLocalTimeToDate(data.endTime),
       attendanceTime: Number(data.durationMinutes),
@@ -160,40 +159,17 @@ export const useSchedulingPreview = () => {
   const toggleAllDaySlots = (daySlotIds: string[], isEnablingAll: boolean) => {
     setDisabledSlotIds((current) => {
       const next = new Set(current);
-      const allSlots = getAllSlots();
 
       daySlotIds.forEach((slotId) => {
-        const slot = allSlots.find((s) => getSlotId(s) === slotId);
-
-        if (!slot) return;
-
         if (isEnablingAll) {
-          if (slot.status === "AVAILABLE") {
-            next.add(slotId);
-          } else if (slot.status === "CREATED") {
-            next.delete(slotId);
-          }
+          next.delete(slotId);
         } else {
-          if (slot.status === "AVAILABLE") {
-            next.delete(slotId);
-          } else if (slot.status === "CREATED") {
-            next.add(slotId);
-          }
+          next.add(slotId);
         }
       });
 
       return next;
     });
-  };
-
-  const isSlotGreen = (slot: SchedulingSlot, dayDate: Date) => {
-    const slotId = getSlotId({ ...slot, dayDate });
-    const isToggled = disabledSlotIds.has(slotId);
-
-    if (slot.status === "AVAILABLE") {
-      return isToggled;
-    }
-    return !isToggled;
   };
 
   const getActiveSlots = () => {
@@ -204,10 +180,11 @@ export const useSchedulingPreview = () => {
 
     days.forEach((day) => {
       day.slots.forEach((slot) => {
-        if (isSlotGreen(slot, day.date)) {
+        const slotId = getSlotId(slot);
+        if (!disabledSlotIds.has(slotId)) {
           activeSlots.push({
             ...slot,
-            dayDate: day.date,
+            dayDate: day.date instanceof Date ? day.date : new Date(day.date),
             weekday: day.weekday,
           });
         }
@@ -253,11 +230,8 @@ export const useSchedulingPreview = () => {
     const idsToRemove: string[] = [];
     days.forEach((day) => {
       day.slots.forEach((slot) => {
-        if (
-          slot.status === "CREATED" &&
-          slot.id &&
-          disabledSlotIds.has(getSlotId({ ...slot, dayDate: day.date }))
-        ) {
+        const slotId = getSlotId(slot);
+        if (slot.status === "CREATED" && slot.id && disabledSlotIds.has(slotId)) {
           idsToRemove.push(slot.id);
         }
       });
@@ -326,29 +300,17 @@ export const useSchedulingPreview = () => {
   };
 
   const activeSlotsCount = getActiveSlots().length;
-
-  const getRemovedSlotsCount = () => {
-    let count = 0;
-    days.forEach((day) => {
-      day.slots.forEach((slot) => {
-        if (
+  const removedSlotsCount = disabledSlotIds.size;
+  const hasChanges =
+    activeSlotsCount > 0 ||
+    days.some((day) =>
+      day.slots.some(
+        (slot) =>
           slot.status === "CREATED" &&
           slot.id &&
-          disabledSlotIds.has(getSlotId({ ...slot, dayDate: day.date }))
-        ) {
-          count++;
-        }
-      });
-    });
-    return count;
-  };
-
-  const removedSlotsCount = getRemovedSlotsCount();
-  const hasChanges = days.some((day) =>
-    day.slots.some((slot) =>
-      disabledSlotIds.has(getSlotId({ ...slot, dayDate: day.date })),
-    ),
-  );
+          disabledSlotIds.has(getSlotId(slot)),
+      ),
+    );
 
   return {
     form,
