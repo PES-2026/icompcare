@@ -98,6 +98,7 @@ import { DiagnosesController } from "@presentation/controllers/diagnosesControll
 import { ReportController } from "@presentation/controllers/reportController";
 import { StudentController } from "@presentation/controllers/studentController";
 import { UserController } from "@presentation/controllers/userController";
+import { csrfProtection } from "@presentation/middlewares/csrf";
 import { errorHandler } from "@presentation/middlewares/errorHandler";
 import { accountRequestRoutes } from "@presentation/routes/accountRequestRoutes";
 import { appointmentRoutes } from "@presentation/routes/appointmentRoutes";
@@ -331,6 +332,7 @@ const availabililtyController = new AvailabilityController(
 );
 
 app.use(cookieParser());
+app.use(csrfProtection);
 
 app.use(express.json());
 
