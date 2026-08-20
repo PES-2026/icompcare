@@ -31,11 +31,12 @@ export class ListAvailabilitiesByPedagogueDTO {
     const page = validateNumberField(raw.page, "page");
     const limit = validateNumberField(raw.limit, "limit");
 
-    const filters: AvailabilityFilters = {};
+    const validPedagogueId = validateExternalIdField(raw.pedagogueId ?? pedagogueId, "pedagogueId");
 
-    if (raw.pedagogueId) {
-      filters.pedagogueId = validateExternalIdField(raw.pedagogueId, "pedagogueId");
-    }
+    const filters: AvailabilityFilters = {
+      pedagogueId: validPedagogueId,
+    };
+
     if (raw.status) {
       filters.status = findValueInEnum(AvailabilityStatusEnum, validateStringField(raw.status, "status"));
     }

@@ -3,23 +3,34 @@
 import CommonButton from "@/components/ui/CommonButton";
 import { Column, DataTable } from "@/components/ui/DataTable";
 import { Check, Eye, Loader2, RefreshCw, X } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
 import { useManagedSchedulings } from "../../hooks/useManagedScheduling";
-import { ScheduleItem } from "../../types/schedulingManagement";
+import {
+  ListScheduleFilters,
+  ScheduleItem,
+} from "../../types/schedulingManagement";
 import {
   formatSchedulingDate,
   formatSchedulingTime,
 } from "../../utils/schedulingDates";
+import SchedulingRejectionModal from "../pending/SchedulingRejectionModal";
+import CreateStudentFromAppointmentModal from "./CreateStudentFromAppointmentModal";
 import SchedulingDetailsModal from "./SchedulingDetailsModal";
 import SchedulingEmptyState from "./SchedulingEmptyState";
 import SchedulingFilters from "./SchedulingFilters";
 import SchedulingStatusBadge from "./SchedulingStatusBadge";
-import { useCallback } from "react";
 
 export default function SchedulingTable() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [selectedScheduling, setSelectedScheduling] =
+    useState<ScheduleItem | null>(null);
+  const [cancelSchedulingTarget, setCancelSchedulingTarget] =
+    useState<ScheduleItem | null>(null);
+  const [createStudentTarget, setCreateStudentTarget] =
     useState<ScheduleItem | null>(null);
 
   const {
@@ -29,16 +40,62 @@ export default function SchedulingTable() {
     processingId,
     error,
     setFilters,
+    cancelScheduling,
     reload,
   } = useManagedSchedulings(page, limit);
 
   const handleApplyFilters = useCallback(
-    (filters: any) => {
+    (filters: ListScheduleFilters) => {
       setPage(1);
       setFilters(filters);
     },
     [setFilters],
   );
+
+  const handleCancelConfirm = async (justification: string) => {
+    if (!cancelSchedulingTarget) return;
+
+    try {
+      await cancelScheduling(
+        cancelSchedulingTarget.id,
+        justification,
+        cancelSchedulingTarget.type,
+      );
+      setCancelSchedulingTarget(null);
+      toast.success("Agendamento cancelado com sucesso.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Não foi possível cancelar o agendamento.",
+      );
+    }
+  };
+
+  const handleStartAttendance = (scheduling: ScheduleItem) => {
+    if (
+      scheduling.studentId &&
+      scheduling.studentId !== "Guest student" &&
+      scheduling.type === "STUDENT"
+    ) {
+      const demand = encodeURIComponent(scheduling.reason || "");
+      const date = encodeURIComponent(scheduling.startDate || "");
+      router.push(
+        `/pedagogue/students/${scheduling.studentId}/attendance/register?demand=${demand}&date=${date}`,
+      );
+    } else {
+      setCreateStudentTarget(scheduling);
+    }
+  };
+
+  const handleStudentCreated = (newStudentId: string) => {
+    const demand = encodeURIComponent(createStudentTarget?.reason || "");
+    const date = encodeURIComponent(createStudentTarget?.startDate || "");
+    setCreateStudentTarget(null);
+    router.push(
+      `/pedagogue/students/${newStudentId}/attendance/register?demand=${demand}&date=${date}`,
+    );
+  };
 
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
@@ -94,7 +151,7 @@ export default function SchedulingTable() {
       width: "min-w-[140px]",
       renderCell: (scheduling) => {
         const isProcessing = processingId === scheduling.id;
-        const canAction = scheduling.status === "CONFIRMED"; // Assuming APPROVED is now CONFIRMED
+        const canAction = scheduling.status === "CONFIRMED";
 
         return (
           <div className="flex items-center justify-center gap-1">
@@ -115,14 +172,13 @@ export default function SchedulingTable() {
                 <CommonButton
                   label=""
                   type="button"
-                  aria-label={`Finalizar atendimento de ${scheduling.studentName}`}
-                  title="Marcar como Concluído"
-                  startIcon={isProcessing ? Loader2 : Check}
+                  aria-label={`Registrar atendimento para ${scheduling.studentName}`}
+                  title="Registrar Atendimento"
+                  startIcon={Check}
                   sizeIcon={20}
-                  disabled={true}
-                  className={`gap-0 rounded-md p-1 text-[#6bc4a6] bg-transparent hover:bg-[#e8f7f2] ${
-                    isProcessing ? "[&_svg]:animate-spin" : ""
-                  }`}
+                  disabled={isProcessing}
+                  onClick={() => handleStartAttendance(scheduling)}
+                  className="gap-0 rounded-md p-1 text-[#6bc4a6] bg-transparent hover:bg-[#e8f7f2]"
                 />
                 <CommonButton
                   label=""
@@ -131,7 +187,8 @@ export default function SchedulingTable() {
                   title="Cancelar Agendamento"
                   startIcon={X}
                   sizeIcon={20}
-                  disabled={true}
+                  disabled={isProcessing}
+                  onClick={() => setCancelSchedulingTarget(scheduling)}
                   className="gap-0 rounded-md p-1 text-red-600 bg-transparent hover:bg-red-100"
                 />
               </>
@@ -186,6 +243,23 @@ export default function SchedulingTable() {
         scheduling={selectedScheduling}
         onClose={() => setSelectedScheduling(null)}
       />
+
+      {cancelSchedulingTarget && (
+        <SchedulingRejectionModal
+          scheduling={cancelSchedulingTarget}
+          isSubmitting={processingId === cancelSchedulingTarget.id}
+          onClose={() => setCancelSchedulingTarget(null)}
+          onConfirm={handleCancelConfirm}
+        />
+      )}
+
+      {createStudentTarget && (
+        <CreateStudentFromAppointmentModal
+          scheduling={createStudentTarget}
+          onClose={() => setCreateStudentTarget(null)}
+          onSuccess={handleStudentCreated}
+        />
+      )}
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { formatSchedulingTime } from "@/features/scheduling/utils/schedulingDates";
 import { cn } from "@/utils/cn";
 import { Check, Clock, X } from "lucide-react";
 import { TimeSlot } from "../types/appointment";
@@ -13,8 +14,6 @@ export function AppointmentSlot({
   isSelected,
   onSelect,
 }: AppointmentSlotProps) {
-  const dateToTime = (date: string) => date.substring(11, 16);
-
   if (slot.status !== "CREATED") {
     return (
       <div className="flex w-full items-center gap-3 rounded-xl border border-[#fcbca5]/50 bg-[#fff5f2] px-4 py-3 sm:px-5 sm:py-3.5 opacity-70">
@@ -24,7 +23,7 @@ export function AppointmentSlot({
 
         <div className="flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5 sm:gap-0">
           <span className="text-sm font-semibold text-[#a88273] line-through">
-            {dateToTime(slot.startDateTime)}-{dateToTime(slot.endDateTime)}
+            {formatSchedulingTime(slot.startDateTime)} - {formatSchedulingTime(slot.endDateTime)}
           </span>
           <div className="flex items-center gap-1.5 text-xs font-semibold text-[#e87a55]">
             Indisponível
@@ -61,7 +60,7 @@ export function AppointmentSlot({
             isSelected ? "text-[#5eaa91]" : "text-[#5a5248]",
           )}
         >
-          {dateToTime(slot.startDateTime)} - {dateToTime(slot.endDateTime)}
+          {formatSchedulingTime(slot.startDateTime)} - {formatSchedulingTime(slot.endDateTime)}
         </span>
         <div
           className={cn(

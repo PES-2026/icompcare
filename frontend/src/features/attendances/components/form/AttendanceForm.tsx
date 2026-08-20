@@ -8,10 +8,10 @@ import { SuccessScreenForm } from "@/components/ui/SuccessScreenForm";
 import { PATHS } from "@/constants/paths";
 import { useAttendanceTypesOptions } from "@/features/attendance-types/hooks/useAttendanceTypesOptions";
 import { useStudentById } from "@/features/students/hooks/useStudentById";
-import { maskDate } from "@/utils/utils";
+import { formatDate, maskDate } from "@/utils/utils";
 import { Loader2 } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAttendanceForm } from "../../hooks/useAttendanceForm";
 import { attendanceService } from "../../services/attendanceService";
@@ -35,6 +35,7 @@ export default function AttendanceForm({
   onCancel,
 }: FormProps) {
   const params = useParams();
+  const searchParams = useSearchParams();
   const studentId = decodeURIComponent((params?.studentId as string) ?? "");
   const attendanceId = decodeURIComponent(
     (params?.attendanceId as string) ?? "",
@@ -48,6 +49,23 @@ export default function AttendanceForm({
     attendanceId,
     isEditMode,
   });
+
+  useEffect(() => {
+    if (!isEditMode && searchParams) {
+      const demandParam = searchParams.get("demand");
+      const dateParam = searchParams.get("date");
+
+      if (demandParam || dateParam) {
+        setFormData((prev) => ({
+          ...prev,
+          ...(demandParam && { demand: demandParam }),
+          ...(dateParam && {
+            date: dateParam.includes("-") ? formatDate(dateParam) : maskDate(dateParam),
+          }),
+        }));
+      }
+    }
+  }, [isEditMode, searchParams, setFormData]);
 
   const { student, isLoadingStudent } = useStudentById(studentId);
   const { attendanceTypesOptions } = useAttendanceTypesOptions();
@@ -254,16 +272,11 @@ export default function AttendanceForm({
                 className="bg-[#f4a598] text-white hover:bg-[#f0a195]"
               />
               <CommonButton
-                label={
-                  isLoading
-                    ? "Salvando..."
-                    : isEditMode
-                      ? "Salvar Alterações"
-                      : "Confirmar Registro"
-                }
+                label={isEditMode ? "Salvar Alterações" : "Confirmar Registro"}
                 type="button"
                 onClick={validateSubmit}
-                disabled={isLoading}
+                isLoading={isLoading}
+                loadingLabel="Salvando..."
               />
             </div>
           </form>
@@ -281,6 +294,7 @@ export default function AttendanceForm({
         }
         confirmLabel={isEditMode ? "Atualizar" : "Cadastrar"}
         confirmColor="primary"
+        isLoading={isLoading}
         onConfirm={handleSubmit}
         onCancel={() => setShowConfirmRegister(false)}
       />

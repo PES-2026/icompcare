@@ -30,11 +30,12 @@ export const formatAttendanceForBackend = (
   studentId: string,
 ) => {
   const [day, month, year] = data.date.split("/");
+  const attendanceDate = new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0);
 
   return {
     ...data,
     studentId,
-    date: `${year}-${month}-${day}T00:00:00`,
+    date: isNaN(attendanceDate.getTime()) ? data.date : attendanceDate.toISOString(),
   };
 };
 

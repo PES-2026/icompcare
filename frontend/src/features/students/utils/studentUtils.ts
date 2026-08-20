@@ -34,12 +34,13 @@ export const validateStudentForm = (data: StudentFormData): FormErrors => {
 
 export const formatForBackend = (data: StudentFormData) => {
   const [day, month, year] = data.dtBirth.split("/");
+  const birthDate = new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0);
 
   const { id: externalId, ...restData } = data;
 
   return {
     ...restData,
-    dtBirth: `${year}-${month}-${day}`,
+    dtBirth: isNaN(birthDate.getTime()) ? data.dtBirth : birthDate.toISOString(),
     enrollmentId: data.enrollmentId.replace(/\D/g, ""),
     phoneNumber: data.phoneNumber.replace(/\D/g, ""),
   };

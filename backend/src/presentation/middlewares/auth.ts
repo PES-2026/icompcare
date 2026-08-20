@@ -3,7 +3,14 @@ import { NextFunction, Request, Response } from "express";
 import { ITokenService } from "@domain/services/tokenService";
 
 export const authMiddleware = (jwtService: ITokenService, req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.accessToken;
+  let token = req.cookies?.accessToken;
+
+  if (!token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(" ");
+    if (parts.length === 2 && parts[0] === "Bearer") {
+      token = parts[1];
+    }
+  }
 
   if (!token) {
     return res.status(401).json({ error: "Access denied. Token not provided." });

@@ -1,0 +1,1059 @@
+{
+  "info": {
+    "_postman_id": "sap-icomp-api-v1",
+    "name": "SAP IComp - Backend API",
+    "description": "Postman collection for all endpoints of the SAP IComp backend application.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8107",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var resBody = pm.response.json();",
+                  "    if (resBody && resBody.user && resBody.user.token) {",
+                  "        pm.collectionVariables.set('accessToken', resBody.user.token);",
+                  "    }",
+                  "    var cookie = pm.cookies.get('accessToken');",
+                  "    if (cookie) {",
+                  "        pm.collectionVariables.set('accessToken', cookie);",
+                  "    }",
+                  "    var setCookie = pm.response.headers.get('Set-Cookie');",
+                  "    if (setCookie) {",
+                  "        var match = setCookie.match(/accessToken=([^;]+)/);",
+                  "        if (match && match[1]) {",
+                  "            pm.collectionVariables.set('accessToken', match[1]);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pedagogue@icomp.ufam.edu.br\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Authenticated User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"professor@icomp.ufam.edu.br\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"RESET_TOKEN_HERE\",\n  \"password\": \"newPassword123\",\n  \"passwordConfirmation\": \"newPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Account Requests",
+      "item": [
+        {
+          "name": "Create Account Request",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Novo Docente\",\n  \"email\": \"docente@icomp.ufam.edu.br\",\n  \"emailConfirmation\": \"docente@icomp.ufam.edu.br\",\n  \"registrationNumber\": \"20260001\",\n  \"phoneNumber\": \"92999998888\",\n  \"password\": \"SenhaForte123\",\n  \"passwordConfirmation\": \"SenhaForte123\",\n  \"role\": \"PROFESSOR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/account-requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["account-requests"]
+            }
+          }
+        },
+        {
+          "name": "List Pending Account Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/account-requests/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["account-requests", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Approve / Reject Account Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"ACCOUNT_REQUEST_UUID\",\n  \"isApproved\": true,\n  \"role\": \"PROFESSOR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/account-requests/approve-users",
+              "host": ["{{baseUrl}}"],
+              "path": ["account-requests", "approve-users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "name", "value": "", "disabled": true },
+                { "key": "userStatus", "value": "APPROVED", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [{ "key": "id", "value": "USER_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nome Atualizado\",\n  \"email\": \"email.atualizado@icomp.ufam.edu.br\",\n  \"phoneNumber\": \"92988887777\",\n  \"registrationNumber\": \"20260002\",\n  \"userStatus\": \"ENABLED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [{ "key": "id", "value": "USER_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update User Password",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"novaSenha123\",\n  \"newPasswordConfirmation\": \"novaSenha123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "password"],
+              "variable": [{ "key": "id", "value": "USER_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "activate"],
+              "variable": [{ "key": "id", "value": "USER_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove User (Soft Delete)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "USER_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Students",
+      "item": [
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Discente Exemplo\",\n  \"dtBirth\": \"2003-05-15\",\n  \"email\": \"discente@icomp.ufam.edu.br\",\n  \"enrollmentId\": \"22150001\",\n  \"phoneNumber\": \"92991112222\",\n  \"courseId\": \"COURSE_UUID\",\n  \"diagnoses\": [\"DIAGNOSIS_UUID\"],\n  \"potential\": \"Grande habilidade em raciocínio lógico e programação\",\n  \"difficulties\": \"Sensibilidade a ruídos e sobrecarga sensorial\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
+          }
+        },
+        {
+          "name": "List Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "name", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", ":id"],
+              "variable": [{ "key": "id", "value": "STUDENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Discente Atualizado\",\n  \"dtBirth\": \"2003-05-15\",\n  \"email\": \"discente.atualizado@icomp.ufam.edu.br\",\n  \"enrollmentId\": \"22150001\",\n  \"phoneNumber\": \"92991113333\",\n  \"courseId\": \"COURSE_UUID\",\n  \"diagnoses\": [\"DIAGNOSIS_UUID\"],\n  \"potential\": \"Evolução positiva em trabalhos práticos\",\n  \"difficulties\": \"Necessita de tempo adicional para avaliações\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", ":id"],
+              "variable": [{ "key": "id", "value": "STUDENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "STUDENT_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Attendances",
+      "item": [
+        {
+          "name": "Create Attendance",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"STUDENT_UUID\",\n  \"pedagogueId\": \"PEDAGOGUE_UUID\",\n  \"typeId\": \"ATTENDANCE_TYPE_UUID\",\n  \"attendedAt\": \"2026-08-19T14:00:00.000Z\",\n  \"demand\": \"Adaptação curricular e apoio sensorial\",\n  \"observation\": \"Atendimento realizado com orientações para o semestre\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendances",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances"]
+            }
+          }
+        },
+        {
+          "name": "List Attendances",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendances?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Attendance by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendances/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances", ":id"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "List Attendances by Student",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendances/student/:id?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances", "student", ":id"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ],
+              "variable": [{ "key": "id", "value": "STUDENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Attendance",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"demand\": \"Demanda atualizada\",\n  \"observation\": \"Observações complementares registradas\",\n  \"typeId\": \"ATTENDANCE_TYPE_UUID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendances/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances", ":id"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Attendance",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendances/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendances", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Attendance Types",
+      "item": [
+        {
+          "name": "Create Attendance Type",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Orientação Pedagógica\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendance-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendance-types"]
+            }
+          }
+        },
+        {
+          "name": "List Attendance Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendance-types?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendance-types"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Attendance Type by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendance-types/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendance-types", ":id"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_TYPE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Attendance Type",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acolhimento Pedagógico\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/attendance-types/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendance-types", ":id"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_TYPE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Attendance Type",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/attendance-types/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["attendance-types", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "ATTENDANCE_TYPE_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Courses",
+      "item": [
+        {
+          "name": "List Courses (Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engenharia de Software\",\n  \"acronym\": \"ES\",\n  \"coordinatorId\": \"PROFESSOR_UUID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"]
+            }
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", ":id"],
+              "variable": [{ "key": "id", "value": "COURSE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ciência da Computação\",\n  \"acronym\": \"CC\",\n  \"coordinatorId\": \"PROFESSOR_UUID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", ":id"],
+              "variable": [{ "key": "id", "value": "COURSE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Course",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "COURSE_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Diagnoses",
+      "item": [
+        {
+          "name": "Create Diagnosis",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Transtorno do Espectro Autista\",\n  \"acronym\": \"TEA\",\n  \"cid\": \"F84.0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/diagnoses",
+              "host": ["{{baseUrl}}"],
+              "path": ["diagnoses"]
+            }
+          }
+        },
+        {
+          "name": "List Diagnoses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/diagnoses?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["diagnoses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Diagnosis by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/diagnoses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["diagnoses", ":id"],
+              "variable": [{ "key": "id", "value": "DIAGNOSIS_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Diagnosis",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Transtorno do Déficit de Atenção com Hiperatividade\",\n  \"acronym\": \"TDAH\",\n  \"cid\": \"F90.0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/diagnoses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["diagnoses", ":id"],
+              "variable": [{ "key": "id", "value": "DIAGNOSIS_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Diagnosis",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/diagnoses/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["diagnoses", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "DIAGNOSIS_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Availabilities",
+      "item": [
+        {
+          "name": "Preview Availability Slots",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-08-20T00:00:00.000Z\",\n  \"endDate\": \"2026-08-20T23:59:59.000Z\",\n  \"attendanceTime\": 30,\n  \"pedagogueId\": \"PEDAGOGUE_UUID\",\n  \"slots\": [\n    {\n      \"start\": \"2026-08-20T08:00:00.000Z\",\n      \"end\": \"2026-08-20T12:00:00.000Z\",\n      \"weekday\": \"THURSDAY\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availabilities/preview",
+              "host": ["{{baseUrl}}"],
+              "path": ["availabilities", "preview"]
+            }
+          }
+        },
+        {
+          "name": "Create Availability Slots",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"date\": \"2026-08-20T00:00:00.000Z\",\n      \"start\": \"2026-08-20T08:00:00.000Z\",\n      \"end\": \"2026-08-20T08:30:00.000Z\",\n      \"pedagogueId\": \"PEDAGOGUE_UUID\",\n      \"attendanceTime\": 30,\n      \"weekday\": \"THURSDAY\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availabilities",
+              "host": ["{{baseUrl}}"],
+              "path": ["availabilities"]
+            }
+          }
+        },
+        {
+          "name": "List Availabilities by Pedagogue (Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availabilities/pedagogue/:id?startDate=2026-08-20T00:00:00.000Z&endDate=2026-08-27T23:59:59.000Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["availabilities", "pedagogue", ":id"],
+              "query": [
+                { "key": "startDate", "value": "2026-08-20T00:00:00.000Z" },
+                { "key": "endDate", "value": "2026-08-27T23:59:59.000Z" }
+              ],
+              "variable": [{ "key": "id", "value": "PEDAGOGUE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Single Availability",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availabilities/:id/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["availabilities", ":id", "remove"],
+              "variable": [{ "key": "id", "value": "AVAILABILITY_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Remove Multiple Availabilities",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [\"AVAILABILITY_UUID_1\", \"AVAILABILITY_UUID_2\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availabilities/remove-many",
+              "host": ["{{baseUrl}}"],
+              "path": ["availabilities", "remove-many"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Appointments",
+      "item": [
+        {
+          "name": "Request Appointment (Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pedagogueId\": \"PEDAGOGUE_UUID\",\n  \"availabilitySlotId\": \"AVAILABILITY_UUID\",\n  \"courseId\": \"COURSE_UUID\",\n  \"name\": \"Discente Solicitante\",\n  \"email\": \"discente@icomp.ufam.edu.br\",\n  \"enrollment\": \"22150001\",\n  \"reason\": \"Orientação para início de período acadêmico\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "request"]
+            }
+          }
+        },
+        {
+          "name": "Get Appointment by ID (Pedagogue)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/:id?type=STUDENT",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", ":id"],
+              "query": [
+                { "key": "type", "value": "STUDENT" }
+              ],
+              "variable": [{ "key": "id", "value": "APPOINTMENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "List Appointments by Pedagogue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/pedagogue/:id?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "pedagogue", ":id"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ],
+              "variable": [{ "key": "id", "value": "PEDAGOGUE_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Confirm Appointment (Pedagogue)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/:id/confirm/:type",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", ":id", "confirm", ":type"],
+              "variable": [
+                { "key": "id", "value": "APPOINTMENT_UUID" },
+                { "key": "type", "value": "STUDENT" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Appointment (Pedagogue)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"STUDENT\",\n  \"reason\": \"Imprevisto na agenda institucional\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/:id/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", ":id", "cancel"],
+              "variable": [{ "key": "id", "value": "APPOINTMENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Reschedule Appointment (Pedagogue)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"STUDENT\",\n  \"availabilitySlotId\": \"NEW_AVAILABILITY_UUID\",\n  \"reason\": \"Remarcação para novo horário\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/:id/reschedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", ":id", "reschedule"],
+              "variable": [{ "key": "id", "value": "APPOINTMENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Get Appointment by Token (Student Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/student/:token",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "student", ":token"],
+              "variable": [{ "key": "token", "value": "APPOINTMENT_TOKEN" }]
+            }
+          }
+        },
+        {
+          "name": "Cancel Appointment by Token (Student Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Conflito com horário de aula\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/student/:token/cancel/:type",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "student", ":token", "cancel", ":type"],
+              "variable": [
+                { "key": "token", "value": "APPOINTMENT_TOKEN" },
+                { "key": "type", "value": "STUDENT" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reschedule Appointment by Token (Student Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availabilitySlotId\": \"NEW_AVAILABILITY_UUID\",\n  \"reason\": \"Preferência por novo horário\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/student/:token/reschedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "student", ":token", "reschedule"],
+              "variable": [{ "key": "token", "value": "APPOINTMENT_TOKEN" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Reports",
+      "item": [
+        {
+          "name": "Create Report",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"STUDENT_UUID\",\n  \"pedagogueId\": \"PEDAGOGUE_UUID\",\n  \"condition\": \"Diagnóstico de TEA com boa adaptação inicial\",\n  \"potential\": \"Destaque em tarefas individuais e lógica formal\",\n  \"difficulties\": \"Comunicação interpessoal em grupos grandes\",\n  \"recommendation\": \"Disponibilizar material prévio e tempo extra em avaliações\",\n  \"conclusion\": \"Encaminhamento para acompanhamento periódico no semestre\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"]
+            }
+          }
+        },
+        {
+          "name": "Get Report by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/:reportId",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", ":reportId"],
+              "variable": [{ "key": "reportId", "value": "REPORT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "List Reports by Student",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/student/:studentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "student", ":studentId"],
+              "variable": [{ "key": "studentId", "value": "STUDENT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Update Report",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"condition\": \"Condição atualizada\",\n  \"potential\": \"Potenciais atualizados\",\n  \"difficulties\": \"Dificuldades mapeadas\",\n  \"recommendation\": \"Recomendações pedagógicas atualizadas\",\n  \"conclusion\": \"Conclusão revisada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reports/:reportId",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", ":reportId"],
+              "variable": [{ "key": "reportId", "value": "REPORT_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Report",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/:reportId",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", ":reportId"],
+              "variable": [{ "key": "reportId", "value": "REPORT_UUID" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

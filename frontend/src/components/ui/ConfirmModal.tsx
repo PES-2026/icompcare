@@ -8,6 +8,7 @@ interface ConfirmModalProps {
   message: string;
   confirmLabel: string;
   confirmColor?: ConfirmVariant;
+  isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -18,6 +19,7 @@ export const ConfirmModal = ({
   message,
   confirmLabel,
   confirmColor = "primary",
+  isLoading = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
@@ -31,8 +33,8 @@ export const ConfirmModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-1000 flex items-center justify-center bg-black/35"
-      onClick={onCancel}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
+      onClick={isLoading ? undefined : onCancel}
     >
       <div
         className="w-[90%] max-w-100 rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.18)]"
@@ -48,11 +50,13 @@ export const ConfirmModal = ({
           <CommonButton
             label="Cancelar"
             onClick={onCancel}
+            disabled={isLoading}
             className="border border-[#e2ddd5] bg-[#faf7f0] text-[#6a6560] hover:bg-[#f3f0e5]"
           />
           <CommonButton
             label={confirmLabel}
             onClick={onConfirm}
+            isLoading={isLoading}
             className={buttonVariants[confirmColor]}
           />
         </div>

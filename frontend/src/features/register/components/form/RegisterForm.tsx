@@ -277,9 +277,10 @@ export default function RegisterForm() {
 
               <div className="mt-6 flex flex-col gap-3">
                 <CommonButton
-                  label={isLoading ? "Enviando..." : "Solicitar acesso"}
+                  label="Solicitar acesso"
                   type="submit"
-                  disabled={isLoading}
+                  isLoading={isLoading}
+                  loadingLabel="Enviando..."
                   className="w-full justify-center"
                 />
 

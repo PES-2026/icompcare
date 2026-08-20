@@ -68,7 +68,7 @@ export class AuthController extends BaseController {
       const cookieOptions = {
         httpOnly: true,
         secure: env.ENVIRONMENT !== "local",
-        sameSite: "lax" as const,
+        sameSite: "strict" as const,
         maxAge: maxAge,
         domain: domainEnv,
       };
@@ -106,7 +106,7 @@ export class AuthController extends BaseController {
       res.clearCookie("accessToken", {
         httpOnly: true,
         secure: env.ENVIRONMENT !== "local",
-        sameSite: "lax",
+        sameSite: "strict" as const,
         domain: domainEnv,
       });
 

@@ -46,9 +46,10 @@ export default function SchedulingCancelModal({
             className="border border-[#e2ddd5] bg-[#faf7f0] text-[#6a6560] hover:bg-[#f3f0e5]"
           />
           <CommonButton
-            label={isSubmitting ? "Cancelando..." : "Confirmar cancelamento"}
+            label="Confirmar cancelamento"
             type="button"
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
+            loadingLabel="Cancelando..."
             onClick={handleConfirm}
             className="bg-red-500 hover:bg-red-600 text-white"
           />

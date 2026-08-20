@@ -1,4 +1,5 @@
 import TablePagination from "@/components/ui/TablePagination";
+import { Loader2 } from "lucide-react";
 import { ReactNode } from "react";
 
 export interface Column<T> {
@@ -32,7 +33,7 @@ export function DataTable<T>({
   toolbar,
   columns,
   data,
-  isLoading,
+  isLoading = false,
   loadingComponent,
   emptyMessage = "Nenhum registro encontrado.",
   emptyComponent,
@@ -47,7 +48,12 @@ export function DataTable<T>({
     <main className="flex min-w-0 flex-1 flex-col h-full font-sans p-6">
       <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-[#faf7f0] border border-[#ece7db] shadow-[0_2px_12px_rgba(0,0,0,0.04)] min-h-0">
         <div className="flex shrink-0 items-center justify-between px-6 pb-4 pt-5">
-          <h1 className="m-0 text-xl font-semibold text-[#3a3530]">{title}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="m-0 text-xl font-semibold text-[#3a3530]">{title}</h1>
+            {isLoading && (
+              <Loader2 className="animate-spin text-teal-600" size={18} />
+            )}
+          </div>
           {headerAction && <div>{headerAction}</div>}
         </div>
         {toolbar && (
@@ -89,7 +95,24 @@ export function DataTable<T>({
                 </thead>
 
                 <tbody>
-                  {data.length === 0 ? (
+                  {isLoading ? (
+                    <tr>
+                      <td
+                        colSpan={columns.length}
+                        className="px-4 py-16 text-center text-[#6a6560]"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <Loader2
+                            size={32}
+                            className="animate-spin text-teal-600"
+                          />
+                          <span className="text-sm font-medium text-stone-500">
+                            Carregando dados...
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : data.length === 0 ? (
                     <tr>
                       <td
                         colSpan={columns.length}

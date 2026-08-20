@@ -23,7 +23,7 @@ export class PrismaAppointmentRepository implements IAppointmentRepository {
       studentName: data.student.name,
       studentEmail: data.student.email,
       studentEnrollment: data.student.enrollmentId,
-      studentCourse: data.student.course.externalId,
+      studentCourse: data.student.course.name,
       availabilityId: data.availability.externalId,
       startDate: data.availability.startDateTime,
       endDate: data.availability.endDateTime,

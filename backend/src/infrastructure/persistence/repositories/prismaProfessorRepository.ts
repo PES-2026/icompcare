@@ -14,7 +14,9 @@ export class PrismaProfessorRepository implements IProfessorRepository {
   async findAll(filters: UserFilters, page: number, limit: number): Promise<PaginatedResult<UserResult>> {
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProfessorWhereInput = {};
+    const where: Prisma.ProfessorWhereInput = {
+      removed: false,
+    };
 
     if (filters.name) {
       where.name = { contains: filters.name, mode: "insensitive" };
@@ -40,7 +42,7 @@ export class PrismaProfessorRepository implements IProfessorRepository {
       email: p.email,
       phoneNumber: p.phoneNumber || "",
       registrationNumber: p.registration,
-      role: "PROFESSOR",
+      role: RoleEnum.PROFESSOR,
       userStatus: p.userStatus,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
@@ -74,8 +76,8 @@ export class PrismaProfessorRepository implements IProfessorRepository {
   }
 
   async findById(id: string): Promise<UserResult | null> {
-    const raw = await this.prisma.professor.findUnique({
-      where: { externalId: id },
+    const raw = await this.prisma.professor.findFirst({
+      where: { externalId: id, removed: false },
     });
 
     if (!raw) return null;
@@ -94,8 +96,8 @@ export class PrismaProfessorRepository implements IProfessorRepository {
   }
 
   async findByIdWithPassword(id: string): Promise<UserAuthResult | null> {
-    const raw = await this.prisma.professor.findUnique({
-      where: { externalId: id },
+    const raw = await this.prisma.professor.findFirst({
+      where: { externalId: id, removed: false },
     });
 
     if (!raw) return null;
@@ -115,8 +117,8 @@ export class PrismaProfessorRepository implements IProfessorRepository {
   }
 
   async findByEmail(email: string): Promise<UserResult | null> {
-    const raw = await this.prisma.professor.findUnique({
-      where: { email },
+    const raw = await this.prisma.professor.findFirst({
+      where: { email, removed: false },
     });
 
     if (!raw) return null;
@@ -168,6 +170,7 @@ export class PrismaProfessorRepository implements IProfessorRepository {
     const account = await this.prisma.professor.findFirst({
       where: {
         email: email,
+        removed: false,
       },
     });
 
@@ -178,6 +181,7 @@ export class PrismaProfessorRepository implements IProfessorRepository {
     const account = await this.prisma.professor.findFirst({
       where: {
         registration: registrationNumber,
+        removed: false,
       },
     });
 
@@ -205,8 +209,8 @@ export class PrismaProfessorRepository implements IProfessorRepository {
   }
 
   async findByEmailWithPassword(email: string): Promise<UserAuthResult | null> {
-    const raw = await this.prisma.professor.findUnique({
-      where: { email },
+    const raw = await this.prisma.professor.findFirst({
+      where: { email, removed: false },
     });
 
     if (!raw) return null;

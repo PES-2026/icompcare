@@ -69,8 +69,8 @@ export const scheduleManagementService = {
     type: string,
   ): Promise<ManagedSchedulingActionResult> {
     const response = await api.put<ManagedSchedulingActionResult>(
-      `/appointments/${scheduleId}/cancel/${type}`,
-      { reason: justification },
+      `/appointments/${scheduleId}/cancel`,
+      { reason: justification, type },
       {
         fallbackMsg: "Não foi possível recusar o atendimento.",
       },
@@ -85,8 +85,8 @@ export const scheduleManagementService = {
     type: string,
   ): Promise<ManagedSchedulingActionResult> {
     const response = await api.put<ManagedSchedulingActionResult>(
-      `/appointments/${scheduleId}/cancel/${type}`,
-      { reason: justification },
+      `/appointments/${scheduleId}/cancel`,
+      { reason: justification, type },
       {
         fallbackMsg: "Não foi possível cancelar o agendamento.",
       },

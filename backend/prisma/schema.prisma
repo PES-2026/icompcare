@@ -55,12 +55,12 @@ model Student {
   name         String
   email        String   @unique
   phoneNumber  String
-  dtBirth      DateTime
+  dtBirth      DateTime @db.Timestamptz(3)
   term         String?
   potential    String?
   difficulties String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
   removed      Boolean  @default(false)
 
   courseId Int
@@ -84,8 +84,8 @@ model AccountRequest {
   role         Role?
   userStatus   UserStatus @default(PENDING)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 }
 
@@ -102,8 +102,8 @@ model Pedagogue {
   userStatus UserStatus @default(APPROVED)
 
   removed   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   passwordResets    PasswordReset[]
   attendances       Attendance[]
@@ -126,8 +126,8 @@ model Professor {
   userStatus UserStatus @default(APPROVED)
 
   removed   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   feedbacks          Feedback[]
   classProfessors    ClassProfessor[]
@@ -143,9 +143,9 @@ model Attendance {
   pedagogueId Int?
   typeId      Int
 
-  createdAt  DateTime @default(now())
-  attendedAt DateTime
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  attendedAt DateTime @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 
   demand      String?
   observation String?
@@ -164,8 +164,8 @@ model AttendanceType {
 
   name String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 
   attendances Attendance[]
@@ -176,8 +176,8 @@ model Subject {
   externalId String   @unique
   name       String
   code       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 
   classOfferings ClassOffering[]
 }
@@ -188,8 +188,8 @@ model Course {
 
   name      String
   acronym   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 
   coordinatorId Int?
@@ -204,10 +204,10 @@ model Semester {
   internalId Int      @id @default(autoincrement())
   externalId String   @unique
   code       String   @unique
-  startDate  DateTime
-  endDate    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  startDate  DateTime @db.Timestamptz(3)
+  endDate    DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 
   classOfferings ClassOffering[]
 }
@@ -227,8 +227,8 @@ model Report {
   status         String?
   removed        Boolean  @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   student   Student   @relation(fields: [studentId], references: [internalId])
   pedagogue Pedagogue @relation(fields: [pedagogueId], references: [internalId])
@@ -247,8 +247,8 @@ model Feedback {
   bodytext String?
   status   String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   report    Report    @relation(fields: [reportId], references: [internalId])
   professor Professor @relation(fields: [professorId], references: [internalId])
@@ -262,8 +262,8 @@ model Diagnosis {
   acronym String?
   CID     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 
   students StudentDiagnosis[]
@@ -290,8 +290,8 @@ model ClassOffering {
   daysWeek String?
   hour     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   course   Course   @relation(fields: [courseId], references: [internalId])
   semester Semester @relation(fields: [semesterId], references: [internalId])
@@ -324,9 +324,9 @@ model ClassProfessor {
 model PasswordReset {
   internalId Int       @id @default(autoincrement())
   token      String    @unique
-  expiresAt  DateTime
-  createdAt  DateTime  @default(now())
-  usedAt     DateTime?
+  expiresAt  DateTime  @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  usedAt     DateTime? @db.Timestamptz(3)
 
   professorId Int?
   professor   Professor? @relation(fields: [professorId], references: [internalId])
@@ -355,8 +355,8 @@ model Appointment {
   availabilityId Int          @unique
   availability   Availability @relation(fields: [availabilityId], references: [internalId])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 
   @@index([pedagogueId])
@@ -385,8 +385,8 @@ model AppointmentGuest {
 
   status AppointmentStatus @default(PENDING)
 
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
+  createdAt            DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime    @updatedAt @db.Timestamptz(3)
   removed              Boolean     @default(false)
   attendance           Attendance? @relation(fields: [attendanceInternalId], references: [internalId])
   attendanceInternalId Int?
@@ -406,15 +406,15 @@ model Availability {
 
   appointmentGuest AppointmentGuest?
 
-  startDateTime  DateTime
-  endDateTime    DateTime
+  startDateTime  DateTime   @db.Timestamptz(3)
+  endDateTime    DateTime   @db.Timestamptz(3)
   weekDay        DaysOfWeek
   attendanceTime Int
 
   status AvailabilityStatus @default(CREATED)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   removed   Boolean  @default(false)
 
   @@index([pedagogueId])

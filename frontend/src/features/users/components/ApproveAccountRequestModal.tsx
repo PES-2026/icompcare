@@ -23,7 +23,7 @@ const roleOptions: {
     value: "PROFESSOR",
     label: "Professor(a)",
     description: "Tem acesso aos relatórios dos alunos vinculados a ele.",
-    isAvailable: false,
+    isAvailable: true,
   },
   {
     value: "PEDAGOGUE",

@@ -40,6 +40,7 @@ export const useAppointmentForm = () => {
     setValue,
     watch,
     reset,
+    trigger,
     formState: { errors, isSubmitting },
   } = methods;
 
@@ -98,15 +99,32 @@ export const useAppointmentForm = () => {
       await scheduleService.request(payload);
 
       toast.success("Atendimento solicitado com sucesso!");
-      reset();
-    } catch (error) {
-      console.error(error);
+      reset({
+        studentName: "",
+        email: "",
+        registrationNumber: "",
+        pedagogueId: "",
+        date: new Date(),
+        courseId: "",
+        slotId: "",
+        durationMinutes: 60,
+        reason: "",
+      });
+      return true;
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível solicitar o agendamento.";
+      toast.error(message);
+      return false;
     }
   };
 
   return {
     register,
     control,
+    trigger,
     handleSubmit: handleSubmit(onSubmit),
     reset,
     errors,
