@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { useManagedSchedulings } from "../../hooks/useManagedScheduling";
-import { ScheduleItem } from "../../types/schedulingManagement";
+import {
+  ListScheduleFilters,
+  ScheduleItem,
+} from "../../types/schedulingManagement";
 import {
   formatSchedulingDate,
   formatSchedulingTime,
@@ -42,7 +45,7 @@ export default function SchedulingTable() {
   } = useManagedSchedulings(page, limit);
 
   const handleApplyFilters = useCallback(
-    (filters: any) => {
+    (filters: ListScheduleFilters) => {
       setPage(1);
       setFilters(filters);
     },

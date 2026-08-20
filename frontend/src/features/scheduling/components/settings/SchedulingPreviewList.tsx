@@ -63,7 +63,7 @@ export default function SchedulingPreviewList({
           Nenhuma prévia gerada
         </h3>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-stone-500">
-          Preencha o formulário acima e clique em "Gerar disponibilidade" para
+          Preencha o formulário acima e clique em &quot;Gerar disponibilidade&quot; para
           visualizar e gerenciar os horários antes de salvar.
         </p>
       </div>

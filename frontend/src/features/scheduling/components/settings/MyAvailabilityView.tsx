@@ -60,8 +60,11 @@ export default function MyAvailabilityView({
       let endDate: string | undefined;
 
       if (selectedDate) {
-        startDate = `${selectedDate}T00:00:00.000`;
-        endDate = `${selectedDate}T23:59:59.999`;
+        const [y, m, d] = selectedDate.split("-").map(Number);
+        const start = new Date(y, m - 1, d, 0, 0, 0, 0);
+        const end = new Date(y, m - 1, d, 23, 59, 59, 999);
+        startDate = start.toISOString();
+        endDate = end.toISOString();
       }
 
       const response = await scheduleService.getAllAvailabilities(userId, {
@@ -72,8 +75,8 @@ export default function MyAvailabilityView({
         limit: 100,
       });
 
-      setSlots((response.items as any) || []);
-    } catch (err) {
+      setSlots((response.items as unknown as SlotItem[]) || []);
+    } catch {
       setSlots([]);
       toast.error("Não foi possível carregar os horários da agenda.");
     } finally {
@@ -291,7 +294,7 @@ export default function MyAvailabilityView({
               </h3>
               <p className="text-sm text-stone-500 mt-1 max-w-md">
                 Não há horários cadastrados para a data ou filtro selecionado.
-                Você pode gerar novas disponibilidades na aba "Criar agenda".
+                Você pode gerar novas disponibilidades na aba &quot;Criar agenda&quot;.
               </p>
               {onGoToCreate && (
                 <CommonButton
@@ -327,8 +330,6 @@ export default function MyAvailabilityView({
                       const isAvailable =
                         slot.status === "CREATED" && !slot.appointmentId;
                       const isPending = slot.status === "PENDING";
-                      const isConfirmed =
-                        slot.status === "CONFIRMED" || !!slot.appointmentId;
                       const isDeleting = deletingSlotId === slot.id;
 
                       return (

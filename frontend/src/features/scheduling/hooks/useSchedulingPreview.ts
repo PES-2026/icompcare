@@ -57,9 +57,17 @@ export const useSchedulingPreview = () => {
     },
   });
 
-  const convertTimeToDate = (timeStr: string) => {
+  const parseLocalTimeToDate = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
-    return new Date(Date.UTC(1970, 0, 1, hours, minutes, 0, 0));
+    return new Date(1970, 0, 1, hours, minutes, 0, 0);
+  };
+
+  const parseLocalDate = (dateStr: string, isEnd = false) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    if (isEnd) {
+      return new Date(year, month - 1, day, 23, 59, 59, 999);
+    }
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
   };
 
   const generatePreview = async (data: SchedulingFormData) => {
@@ -70,10 +78,10 @@ export const useSchedulingPreview = () => {
 
     const payload: SchedulingPreviewPayload = {
       pedagogueId,
-      startDate: new Date(data.startDate + "T00:00:00.000Z"),
-      endDate: new Date(data.endDate + "T00:00:00.000Z"),
-      startHour: convertTimeToDate(data.startTime),
-      endHour: convertTimeToDate(data.endTime),
+      startDate: parseLocalDate(data.startDate),
+      endDate: parseLocalDate(data.endDate, true),
+      startHour: parseLocalTimeToDate(data.startTime),
+      endHour: parseLocalTimeToDate(data.endTime),
       attendanceTime: Number(data.durationMinutes),
       breakTime: Number(data.breakTime),
     };

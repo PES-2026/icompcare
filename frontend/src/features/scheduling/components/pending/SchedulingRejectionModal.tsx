@@ -46,9 +46,10 @@ export default function SchedulingRejectionModal({
             className="border border-[#e2ddd5] bg-[#faf7f0] text-[#6a6560] hover:bg-[#f3f0e5]"
           />
           <CommonButton
-            label={isSubmitting ? "Recusando..." : "Confirmar recusa"}
+            label="Confirmar recusa"
             type="button"
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
+            loadingLabel="Recusando..."
             onClick={handleConfirm}
             className="bg-[#f4a598] hover:bg-[#f0a195]"
           />

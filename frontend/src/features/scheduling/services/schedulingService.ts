@@ -48,7 +48,7 @@ export const scheduleService = {
     date: string,
     pedagogueId: string,
   ): Promise<TimeSlot[]> {
-    const response = await api.get<any[]>(
+    const response = await api.get<TimeSlot[]>(
       `/availabilities/pedagogue/${pedagogueId}`,
       {
         params: { startDate: date, endDate: date },
@@ -65,15 +65,19 @@ export const scheduleService = {
     page: number = 1,
     limit: number = 100,
   ): Promise<TimeSlotResponse> {
-    const dateFormatted = formatDateInput(date);
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
     const response = await api.get<TimeSlotResponse>(
       `/availabilities/pedagogue/${pedagogueId}`,
       {
         params: {
           page,
           limit,
-          startDate: `${dateFormatted}T00:00:00.000`,
-          endDate: `${dateFormatted}T23:59:59.999`,
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
           status: "CREATED",
         },
         fallbackMsg: "Não foi possível carregar os horários disponíveis.",
@@ -110,8 +114,8 @@ export const scheduleService = {
     return response.data;
   },
 
-  async getAppointmentByToken(token: string): Promise<any> {
-    const response = await api.get<any>(`/appointments/student/${token}`, {
+  async getAppointmentByToken(token: string): Promise<Record<string, unknown>> {
+    const response = await api.get<Record<string, unknown>>(`/appointments/student/${token}`, {
       fallbackMsg: "Não foi possível carregar os detalhes do agendamento.",
     });
     return response.data;

@@ -13,7 +13,7 @@ import {
   validateStudentForm,
 } from "@/features/students/utils/studentUtils";
 import { maskDate, maskPhone, maskRegistration } from "@/utils/utils";
-import { Loader2, UserPlus, X } from "lucide-react";
+import { UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ScheduleItem } from "../../types/schedulingManagement";
@@ -113,8 +113,8 @@ export default function CreateStudentFromAppointmentModal({
 
     try {
       setIsSubmitting(true);
-      const payload = formatForBackend(formData);
-      const created = await studentService.createStudent(payload as any);
+      const payload = { ...formatForBackend(formData), id: "" };
+      const created = await studentService.createStudent(payload);
       toast.success("Aluno cadastrado com sucesso!");
       onSuccess(created.id);
     } catch (err) {
@@ -304,11 +304,11 @@ export default function CreateStudentFromAppointmentModal({
               className="w-full justify-center bg-stone-100 text-stone-600 hover:bg-stone-200 sm:w-auto"
             />
             <CommonButton
-              label={isSubmitting ? "Cadastrando..." : "Cadastrar e Ir para Atendimento"}
+              label="Cadastrar e Ir para Atendimento"
               type="submit"
-              startIcon={isSubmitting ? Loader2 : undefined}
-              disabled={isSubmitting}
-              className="w-full justify-center bg-teal-600 text-white hover:bg-teal-700 sm:w-auto [&_svg]:animate-spin"
+              isLoading={isSubmitting}
+              loadingLabel="Cadastrando..."
+              className="w-full justify-center bg-teal-600 text-white hover:bg-teal-700 sm:w-auto"
             />
           </footer>
         </form>

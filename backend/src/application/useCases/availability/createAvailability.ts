@@ -42,13 +42,8 @@ export class CreateAvailability {
         return Result.fail(weekDayValidation.error!);
       }
 
-      const startHour = item.start.getUTCHours();
-      const startMinute = item.start.getUTCMinutes();
-      const endHour = item.end.getUTCHours();
-      const endMinute = item.end.getUTCMinutes();
-
-      const startDateTime = new Date(Date.UTC(item.date.getUTCFullYear(), item.date.getUTCMonth(), item.date.getUTCDate(), startHour, startMinute, 0, 0));
-      const endDateTime = new Date(Date.UTC(item.date.getUTCFullYear(), item.date.getUTCMonth(), item.date.getUTCDate(), endHour, endMinute, 0, 0));
+      const startDateTime = new Date(item.start);
+      const endDateTime = new Date(item.end);
 
       const overlapValidation = await this.validateSlotOverlap(item, startDateTime, endDateTime);
 

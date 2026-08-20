@@ -272,16 +272,11 @@ export default function AttendanceForm({
                 className="bg-[#f4a598] text-white hover:bg-[#f0a195]"
               />
               <CommonButton
-                label={
-                  isLoading
-                    ? "Salvando..."
-                    : isEditMode
-                      ? "Salvar Alterações"
-                      : "Confirmar Registro"
-                }
+                label={isEditMode ? "Salvar Alterações" : "Confirmar Registro"}
                 type="button"
                 onClick={validateSubmit}
-                disabled={isLoading}
+                isLoading={isLoading}
+                loadingLabel="Salvando..."
               />
             </div>
           </form>
@@ -299,6 +294,7 @@ export default function AttendanceForm({
         }
         confirmLabel={isEditMode ? "Atualizar" : "Cadastrar"}
         confirmColor="primary"
+        isLoading={isLoading}
         onConfirm={handleSubmit}
         onCancel={() => setShowConfirmRegister(false)}
       />

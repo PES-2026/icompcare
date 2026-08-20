@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
+import { useLoadingStore } from "@/store/loadingStore";
 import axios from "axios";
 import { ApiError } from "./apiError";
 
@@ -6,6 +7,7 @@ declare module "axios" {
   export interface AxiosRequestConfig {
     fallbackMsg?: string;
     preserveSessionOn401?: boolean;
+    skipGlobalLoader?: boolean;
   }
 }
 
@@ -17,19 +19,36 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// An optional change made to the interceptors to distinguish between different status errors
-// Now the frontend correctly distinguishes between 40x statuses.
-api.interceptors.response.use(
-  (response) => response,
+api.interceptors.request.use(
+  (config) => {
+    if (!config.skipGlobalLoader) {
+      useLoadingStore.getState().startRequest();
+    }
+    return config;
+  },
   (error) => {
+    useLoadingStore.getState().finishRequest();
+    return Promise.reject(error);
+  },
+);
+
+api.interceptors.response.use(
+  (response) => {
+    if (!response.config.skipGlobalLoader) {
+      useLoadingStore.getState().finishRequest();
+    }
+    return response;
+  },
+  (error) => {
+    if (!error.config?.skipGlobalLoader) {
+      useLoadingStore.getState().finishRequest();
+    }
+
     const status = error.response?.status as number | undefined;
     const responseData = error.response?.data as
       | { message?: string; code?: string; details?: unknown }
       | undefined;
 
-    // A 403 status code indicates that access to a specific resource has been denied
-    // and does not invalidate the session. Therefore, only a 401 (incorrect password) status
-    // error logs out the authenticated user.
     if (status === 401 && !error.config?.preserveSessionOn401) {
       useAuthStore.getState().clearUser();
     }

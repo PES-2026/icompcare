@@ -167,9 +167,10 @@ export default function LoginForm() {
 
               <div className="mt-8 flex flex-col gap-3">
                 <CommonButton
-                  label={isLoading ? "Entrando..." : "Entrar"}
+                  label="Entrar"
                   type="submit"
-                  disabled={isLoading}
+                  isLoading={isLoading}
+                  loadingLabel="Entrando..."
                   className="w-full justify-center"
                   aria-label="Entrar"
                 />

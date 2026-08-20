@@ -66,18 +66,13 @@ export default function CancelAppointmentCard() {
 
   const formatDateTime = (dateStr: string) => {
     if (!dateStr) return "";
-    const date = new Date(dateStr);
-    const adjustedDate = new Date(
-      date.getTime() + date.getTimezoneOffset() * 60000,
-    );
-    const formatter = new Intl.DateTimeFormat("pt-BR", {
+    return new Intl.DateTimeFormat("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
-    return formatter.format(adjustedDate);
+    }).format(new Date(dateStr));
   };
 
   if (isLoadingDetails) {

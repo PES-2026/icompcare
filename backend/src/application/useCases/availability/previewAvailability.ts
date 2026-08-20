@@ -93,18 +93,7 @@ export class PreviewAvailability {
         endDateTime.setUTCMinutes(endDateTime.getUTCMinutes() + currentStartMinutes + attendanceTime);
 
         const existingSlot = existingSlots.find((s) => {
-          const sStart = s.startDateTime.getTime();
-          const sEnd = s.endDateTime.getTime();
-          const genStart = startDateTime.getTime();
-          const genEnd = endDateTime.getTime();
-
-          const offsetMs = startDateTime.getTimezoneOffset() * 60000;
-
-          const matchExact = sStart === genStart && sEnd === genEnd;
-          const matchShiftedGen = sStart === genStart - offsetMs && sEnd === genEnd - offsetMs;
-          const matchShiftedDb = sStart - offsetMs === genStart && sEnd - offsetMs === genEnd;
-
-          return matchExact || matchShiftedGen || matchShiftedDb;
+          return s.startDateTime.getTime() === startDateTime.getTime() && s.endDateTime.getTime() === endDateTime.getTime();
         });
 
         const previewEntityResult = AvailabilityPreview.create({
