@@ -31,9 +31,8 @@ export abstract class BaseController {
     res.status(404).json({ error: "NotFound", message: message || "Not found" });
   }
 
-  public handleError(error: unknown, res: Response, context?: string): void {
-    const errorType = error instanceof Error ? error.name : "UnknownError";
-    console.error(`[${context || "BaseController"}] Unhandled Exception: ${errorType}`);
+  public handleError(_error: unknown, res: Response, context?: string): void {
+    console.error(`[${context || "BaseController"}] Unhandled application exception`);
     res.status(500).json({ error: "InternalServerError", message: "Internal server error" });
   }
 
@@ -56,9 +55,7 @@ export abstract class BaseController {
       const { statusCode, body } = HttpErrorMapper.toResponse(error);
       res.status(statusCode).json(body);
     } else {
-      const err = error as unknown;
-      const errorType = err instanceof Error ? err.name : "ApplicationError";
-      console.error(`[BaseController:handleResult] Unmapped Result Error: ${errorType}`);
+      console.error("[BaseController:handleResult] Unmapped application error");
       res.status(500).json({ error: "InternalServerError", message: "Internal server error" });
     }
   }
